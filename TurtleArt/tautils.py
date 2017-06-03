@@ -32,9 +32,9 @@ import string
 import mimetypes
 from gettext import gettext as _
 from gi.repository import Gtk
-from gi.repository import Gobject
+from gi.repository import GObject
 from gi.repository import GdkPixbuf
-from gi.repository import Gconf
+from gi.repository import GConf
 import json
 json.dumps
 from json import load as jload
@@ -133,7 +133,7 @@ def magnitude(pos):
 
 
 def json_load(text):
-    ''' Load JSON data using what ever resources are available. '''
+        ''' Load JSON data using what ever resources are available. '''
 
         # Remove MAGIC NUMBER, if present, and leading whitespace
         if text[0:2] == MAGICNUMBER:
@@ -158,8 +158,8 @@ def json_load(text):
             listdata = text.split()
             for i, value in enumerate(listdata):
                 listdata[i] = convert(value, float)
-    # json converts tuples to lists, so we need to convert back,
-    return _tuplify(listdata)
+        # json converts tuples to lists, so we need to convert back,
+        return _tuplify(listdata)
 
 
 def find_hat(data):
@@ -273,26 +273,26 @@ def get_id(connection):
 
 def json_dump(data):
     ''' Save data using available JSON tools. '''
-        io = StringIO()
-        jdump(data, io)
-        return io.getvalue()
+    io = StringIO()
+    jdump(data, io)
+    return io.getvalue()
 
-def get_endswith_files(path, end):
-    f = os.listdir(path)
-    files = []
-    for name in f:
-        if name.endswith(end):
-            files.append(os.path.join(path, name))
-    return files
+#def get_endswith_files(path, end):
+#    f = os.listdir(path)
+#    files = []
+#    for name in f:
+#        if name.endswith(end):
+#            files.append(os.path.join(path, name))
+#    return files
 
 
 def get_load_name(filefilter, load_save_folder=None):
     ''' Open a load file dialog. '''
     dialog = Gtk.FileChooserDialog(
         _('Load...'), None,
-        Gtk.FILE_CHOOSER_ACTION_OPEN, (Gtk.STOCK_CANCEL, Gtk.ResponeType.CANCEL,
+        Gtk.FileChooserAction.OPEN, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
-    dialog.set_default_response(Gtk.ResponeType.OK)
+    dialog.set_default_response(Gtk.ResponseType.OK)
     return do_dialog(dialog, filefilter, load_save_folder)
 
 
@@ -300,7 +300,7 @@ def get_save_name(filefilter, load_save_folder, save_file_name):
     ''' Open a save file dialog. '''
     dialog = Gtk.FileChooserDialog(
         _('Save...'), None,
-        Gtk.FileChooserAction.SAVE, (Gtk.STOCK_CANCEL, Gtk.ResponeType.CANCEL,
+        Gtk.FileChooserAction.SAVE, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                        Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
     dialog.set_default_response(Gtk.ResponseType.OK)
     if filefilter in ['.png', '.svg', '.lg', '.py', '.odp']:
@@ -316,7 +316,7 @@ def get_save_name(filefilter, load_save_folder, save_file_name):
 
 def chooser_dialog(parent_window, filter, action):
     ''' Choose an object from the datastore and take some action '''
-    from sugar.graphics.objectchooser import ObjectChooser
+    from sugar3.graphics.objectchooser import ObjectChooser
 
     chooser = None
     dsobject = None
@@ -337,7 +337,7 @@ def chooser_dialog(parent_window, filter, action):
         if cleanup_needed:
             chooser.destroy()
             del chooser
-    Gobject.idle_add(action, dsobject)
+    GObject.idle_add(action, dsobject)
 
 
 def data_from_file(ta_file):
@@ -412,7 +412,7 @@ def do_dialog(dialog, suffix, load_save_folder):
         dialog.set_current_folder(load_save_folder)
 
     response = dialog.run()
-    if response == Gtk.ResponseType.OK:
+    if response == Gtk.ResponseType:
         result = dialog.get_filename()
         load_save_folder = dialog.get_current_folder()
     dialog.destroy()
@@ -957,7 +957,7 @@ def power_manager_off(status):
     OHM_SERVICE_IFACE = 'org.freedesktop.ohm.Keystore'
     PATH = '/etc/powerd/flags/inhibit-suspend'
 
-    client = gconf.client_get_default()
+    client = GConf.Client.get_default()
 
     ACTUAL_POWER = True
 
@@ -972,7 +972,7 @@ def power_manager_off(status):
 
     try:
         client.set_bool('/desktop/sugar/power/automatic', VALUE)
-    except Gconf.GError:
+    except GConf.GError:
         pass
 
     bus = dbus.SystemBus()

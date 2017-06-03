@@ -63,7 +63,7 @@ class Uploader_plugin(Plugin):
             menu, upload_menu = MENUBAR[_('Upload')]
         else:
             upload_menu = None
-            menu = gtk.Menu()
+            menu = Gtk.Menu()
         make_menu_item(menu, _('Upload to Web'),
                                    self.do_upload_to_web)
         if upload_menu is not None:
@@ -89,7 +89,7 @@ class Uploader_plugin(Plugin):
         login_label = Gtk.Label(_('You must have an account at \
 http://turtleartsite.sugarlabs.org to upload your project.'))
         table.attach(login_label, 0, 1, 0, 1)
-        self.login_message = gtk.Label('')
+        self.login_message = Gtk.Label('')
         table.attach(self.login_message, 0, 1, 1, 2)
 
         self.Hbox1 = Gtk.HBox()
@@ -129,7 +129,7 @@ http://turtleartsite.sugarlabs.org to upload your project.'))
         description_label = Gtk.Label(_('Description:') + ' ')
         description_label.set_size_request(150, 25)
         description_label.set_alignment(1.0, 0.5)
-        self.description_entry.set_wrap_mode(Gtk.WRAP_WORD)
+        self.description_entry.set_wrap_mode(Gtk.WrapMode.WORD)
         self.description_entry.set_size_request(450, 50)
         self.Hbox4.add(description_label)
         self.Hbox4.add(self.description_entry)

@@ -23,7 +23,7 @@
 # THE SOFTWARE.
 
 import gi
-gi.require_version("Gtk" , "3.0")
+gi.require_version("Gtk", "3.0")
 import os
 import sys
 import subprocess
@@ -32,11 +32,12 @@ from gettext import gettext as _
 
 from gi.repository import Gtk
 from gi.repository import Gdk
-from gi.repository import Gobject
+from gi.repository import GObject
 from gi.repository import GdkPixbuf
 from gi.repository import Pango
 from gi.repository import PangoCairo
 
+from sugar3.activity import activity
 _GST_AVAILABLE = False
 
 
@@ -356,7 +357,7 @@ class TurtleArtWindow():
         global_objects["turtles"] = self.turtles
 
         if self.interactive_mode:
-            Gobject.idle_add(self._lazy_init)
+            GObject.idle_add(self._lazy_init)
         else:
             self._init_plugins()
             self._setup_plugins()
@@ -397,7 +398,7 @@ class TurtleArtWindow():
         dpi = get_screen_dpi()
         if self.hw in (XO1, XO15, XO175, XO4):
             dpi = 133  # Tweek because of XO display peculiarities
-        font_map_default = pangocairo.cairo_font_map_get_default()
+        font_map_default = PangoCairo.font_map_get_default()
         font_map_default.set_resolution(dpi)
 
     def _tablet_mode(self):
@@ -575,7 +576,7 @@ class TurtleArtWindow():
         self.window.connect('key-press-event', self._keypress_cb)
         self.window.connect('drag_data_received', self._drag_data_received)
 
-        Gdk.screen_get_default().connect('size-changed',
+        Gdk.Screen.get_default().connect('size-changed',
                                              self._configure_cb)
 
      
@@ -590,12 +591,12 @@ class TurtleArtWindow():
         # Reset the timer
         if hasattr(self.activity, '_unfullscreen_button_timeout_id'):
             if self.activity._unfullscreen_button_timeout_id is not None:
-                Gobject.source_remove(
+                GObject.source_remove(
                     self.activity._unfullscreen_button_timeout_id)
                 self.activity._unfullscreen_button_timeout_id = None
 
             self.activity._unfullscreen_button_timeout_id = \
-                Gobject.timeout_add_seconds(
+                GObject.timeout_add_seconds(
                     _UNFULLSCREEN_VISIBILITY_TIMEOUT,
                     self.__unfullscreen_button_timeout_cb)
 
@@ -1034,7 +1035,7 @@ class TurtleArtWindow():
 
         # Resize text_entry widget
         if hasattr(self, '_text_entry') and len(blocks) > 0:
-            font_desc = pango.FontDescription('Sans')
+            font_desc = Pango.FontDescription('Sans')
             font_desc.set_size(
                 int(blocks[0].font_size[0] * Pango.SCALE * self.entry_scale))
             self._text_entry.modify_font(font_desc)
@@ -1259,7 +1260,7 @@ class TurtleArtWindow():
                 if blk is not None:
                     # Make sure stop button is visible
                     if self.running_sugar and self.running_turtleart:
-                        self.activity.stop_turtle_button.set_icon("stopiton")
+                        self.activity.stop_turtle_button.set_icon_name("stopiton")
                         self.activity.stop_turtle_button.set_tooltip(
                             _('Stop turtle'))
                     elif self.interactive_mode:
@@ -1336,9 +1337,9 @@ class TurtleArtWindow():
         # Almost always hide the status layer on a click
         if self._autohide_shape and self.status_spr is not None:
             self.status_spr.hide()
-            elif spr == self.status_spr:
-                self.status_spr.hide()
-                self._autohide_shape = True
+        elif spr == self.status_spr:
+            self.status_spr.hide()
+            self._autohide_shape = True
 
     def _look_for_a_blk(self, spr, x, y, blk=None):
         # From the sprite at x, y, look for a corresponding block
@@ -1523,7 +1524,7 @@ class TurtleArtWindow():
             msg = _('Really overwrite stack?')
             dialog = Gtk.MessageDialog(self.parent, 0, Gtk.MessageType.WARNING,
                                        Gtk.ButtonsType.OK_CANCEL, msg)
-            dialog.set_title('%s %s' % (_('Overwrite stack'), name)
+            dialog.set_title('%s %s' % (_('Overwrite stack'), name))
             answer = dialog.run()
             dialog.destroy()
             if answer == Gtk.ResponseType.OK:
@@ -2406,7 +2407,7 @@ class TurtleArtWindow():
                 [nick,
                  round_int(self.turtles.get_active_turtle().get_heading())])})
             if self.turtles.get_active_turtle().get_pen_state():
-                self.send_event("P", {"Payload": data_to_string([nick, False])})
+                self.send_event("p", {"payload": data_to_string([nick, False])})
                 put_pen_back_down = True
             else:
                 put_pen_back_down = False
@@ -2414,7 +2415,7 @@ class TurtleArtWindow():
                 [nick,
                  [round_int(self.turtles.get_active_turtle().get_xy()[0]),
                   round_int(self.turtles.get_active_turtle().get_xy()[1])]])})
-           if put_pen_back_down:
+            if put_pen_back_down:
                 self.send_event("p", {"payload", data_to_string([nick, True])})
         self.turtle_movement_to_share = None
 
@@ -2557,7 +2558,7 @@ class TurtleArtWindow():
             else:
                 if self._timeout_tag[0] > 0:
                     try:
-                        Gobject.source_remove(self._timeout_tag[0])
+                        GObject.source_remove(self._timeout_tag[0])
                         self._timeout_tag[0] = 0
                     except:
                         self._timeout_tag[0] = 0
@@ -2571,14 +2572,14 @@ class TurtleArtWindow():
             else:
                 if self._timeout_tag[0] > 0:
                     try:
-                        Gobject.source_remove(self._timeout_tag[0])
+                        GObject.source_remove(self._timeout_tag[0])
                         self._timeout_tag[0] = 0
                     except:
                         self._timeout_tag[0] = 0
         else:
             if self._timeout_tag[0] > 0:
                 try:
-                    Gobject.source_remove(self._timeout_tag[0])
+                    GObject.source_remove(self._timeout_tag[0])
                     self._timeout_tag[0] = 0
                 except:
                     self._timeout_tag[0] = 0
@@ -2689,7 +2690,7 @@ class TurtleArtWindow():
                 abs(self.dy < _MOTION_THRESHOLD))):
             self._click_block(x, y)
         elif self.block_operation == 'copying':
-            Gobject.timeout_add(500, self._unhighlight_drag_group, blk)
+            GObject.timeout_add(500, self._unhighlight_drag_group, blk)
 
     def _unhighlight_drag_group(self, blk):
         self.drag_group = find_group(blk)
@@ -3009,7 +3010,7 @@ class TurtleArtWindow():
             self._hide_text_entry()
             self.parent.get_window().set_cursor(
                 Gdk.Cursor(Gdk.CursorType.WATCH))
-        Gobject.idle_add(self.__run_stack, blk)
+        GObject.idle_add(self.__run_stack, blk)
 
     def __run_stack(self, blk):
         if self.status_spr is not None:
@@ -3029,7 +3030,7 @@ class TurtleArtWindow():
                 Gdk.Cursor(Gdk.CursorType.LEFT_PTR))
         self.lc.run_blocks(code)
         if self.interactive_mode:
-            Gobject.idle_add(self.lc.doevalstep)
+            GObject.idle_add(self.lc.doevalstep)
         else:
             while self.lc.doevalstep():
                 pass
@@ -4279,7 +4280,7 @@ class TurtleArtWindow():
                 title = _('Cannot write data to %s.') % self.load_save_folder
                 msg = _('Please choose a different save directory.')
                 dlg = Gtk.MessageDialog(parent=None, type=Gtk.MessageType.INFO,
-                                        buttons=Gtk.ButtonsType.CANCEL,
+                                        buttons=Gtk.ButtonsType.OK_CANCEL,
                                         message_format=title)
                 dlg.format_secondary_text(msg)
                 dlg.set_title(title)

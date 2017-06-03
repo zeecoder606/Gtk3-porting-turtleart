@@ -110,7 +110,7 @@ class Fb_plugin(Plugin):
         url = self._get_auth_url()
         w = Gtk.Window()
         sw = Gtk.ScrolledWindow()
-        sw.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_AUTOMATIC)
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         sw.show()
         w.move(200, 200)
         w.set_size_request(800, 400)

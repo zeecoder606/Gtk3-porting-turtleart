@@ -23,7 +23,7 @@ import os
 import cairo
 import tempfile
 
-from gi.repository import Gobject
+from gi.repository import GObject
 from random import uniform
 from math import sin, cos, pi, sqrt
 from taconstants import (TURTLE_LAYER, DEFAULT_TURTLE_COLORS, DEFAULT_TURTLE,
@@ -327,8 +327,7 @@ class Turtle:
                     context.translate(nw / 2.0, nh / 2.0)
                     context.rotate(i * 10 * pi / 180.)
                     context.translate(-nw / 2.0, -nh / 2.0)
-                    Gdk.cairo_set_source_pixbuf(context, shapes[0], (nw - w) / 2.0,
-                                              (nh - h) / 2.0)
+                    Gdk.cairo_set_source_pixbuf(context, shapes[0], (nw - w) / 2.0, (nh - h) / 2.0)
                     context.rectangle(0, 0, nw, nh)
                     context.fill()
                     images.append(surface)
@@ -686,7 +685,7 @@ class Turtle:
                                                round_int(width),
                                                round_int(height),
                                                data]]))
-            Gobject.idle_add(self._turtles.turtle_window.send_event, event)
+            GObject.idle_add(self._turtles.turtle_window.send_event, event)
 
             os.remove(tmp_file)
 

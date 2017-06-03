@@ -34,10 +34,10 @@ import tempfile
 import subprocess
 
 import gi
-gi.require_version("Gtk" , "3.0")
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
-from gi.repository import Gobject
+from gi.repository import GObject
 from gi.repository import GdkPixbuf
 try:
     # Try to use XDG Base Directory standard for config files.
@@ -135,8 +135,8 @@ class TurtleMain():
 
     def _get_gconf_settings(self):
         try:
-            import gconf
-            self.client = Gconf.Client_get_default()
+            from gi.repository import GConf
+            self.client = GConf.Client.get_default()
         except ImportError:
             pass
 
@@ -203,8 +203,8 @@ return %s(self)" % (p, P, P)
         if self._ta_file is None:
             self.tw.load_start()
         else:
-            self.win.get_window().set_cursor(Gdk.Cursor(Gdk.CursomType.WATCH))
-            Gobject.idle_add(self._project_loader, self._ta_file)
+            self.win.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.WATCH))
+            GObject.idle_add(self._project_loader, self._ta_file)
         self._set_gconf_overrides()
         Gtk.main()
 
@@ -236,10 +236,10 @@ return %s(self)" % (p, P, P)
             surface = cr.get_target()
         self.turtle_canvas = surface.create_similar(
             cairo.CONTENT_COLOR,
-            # max(1024, gtk.gdk.screen_width() * 2),
-            # max(768, gtk.gdk.screen_height() * 2))
-            Gdk.screen_width() * 2,
-            Gdk.screen_height() * 2)
+            # max(1024,  Gdk.Screen.width() * 2),
+            # max(768, Gdk.Screen.height() * 2))
+            Gdk.Screen.width() * 2,
+            Gdk.Screen.height() * 2)
 
         # Make sure the autosave directory is writeable
         if is_writeable(self._share_path):
@@ -379,7 +379,7 @@ return %s(self)" % (p, P, P)
             if hasattr(self.get_window(), 'get_cursor'):
                 self.get_window().set_cursor(self._old_cursor)
             else:
-                self.get_window().set_cursor(Gdk.Curosr(Gdk.CursorType.LEFT_PTR))
+                self.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.LEFT_PTR))
 
     def _setup_gtk(self):
         ''' Set up a scrolled window in which to run Turtle Blocks. '''
@@ -400,28 +400,28 @@ return %s(self)" % (p, P, P)
 
         self.fixed = Gtk.Fixed()
         self.fixed.connect('size-allocate', self._fixed_resize_cb)
-        width = Gdk.screen_width() - 80
-        height = Gdk.screen_height() - 80
+        width = Gdk.Screen.width() - 80
+        height = Gdk.Screen.height() - 80
         self.fixed.set_size_request(width, height)
 
-        self.vbox = gtk.VBox(False, 0)
+        self.vbox = Gtk.VBox(False, 0)
         self.vbox.show()
 
         self.menu_bar = self._get_menu_bar()
-        self.vbox.pack_start(self.menu_bar, False, False)
+        self.vbox.pack_start(self.menu_bar, False, False, 0)
         self.menu_bar.show()
-        self.menu_height = self.menu_bar.size_request()[1]
+        self.menu_height = self.menu_bar.get_size_request()[1]
 
         self.sw = Gtk.ScrolledWindow()
         self.sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.sw.show()
         canvas = Gtk.DrawingArea()
-        width = Gdk.screen_width() * 2
-        height = Gdk.screen_height() * 2
+        width = Gdk.Screen.width() * 2
+        height = Gdk.Screen.height() * 2
         canvas.set_size_request(width, height)
         self.sw.add_with_viewport(canvas)
         canvas.show()
-        self.vbox.pack_end(self.sw, True, True,0)
+        self.vbox.pack_end(self.sw, True, True, 0)
         self.fixed.put(self.vbox, 0, 0)
         self.fixed.show()
 
@@ -541,13 +541,13 @@ return %s(self)" % (p, P, P)
         project_empty = self.tw.is_project_empty()
         if not project_empty:
             resp = self._show_save_dialog(e is None)
-            if resp == Gtk.ResponeType.YES:
+            if resp == Gtk.ResponseType.YES:
                 if self.tw.is_new_project():
                     self._save_as()
                 else:
                     if self.tw.project_has_changed():
                         self._save_changes()
-            elif resp == Gtk.ResponeType.CANCEL:
+            elif resp == Gtk.ResponseType.CANCEL:
                 return
 
         if hasattr(self, 'client'):
@@ -922,7 +922,7 @@ Would you like to save before quitting?'))
         self.tw.copying_blocks = False
         self.tw.saving_blocks = False
         self.tw.deleting_blocks = False
-        self.win.get_window().set_cursorGdk.Cursor(Gdk.CursorType.LEFT_PTR))
+        self.win.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.LEFT_PTR))
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         text = clipboard.wait_for_text()
         if text is not None:

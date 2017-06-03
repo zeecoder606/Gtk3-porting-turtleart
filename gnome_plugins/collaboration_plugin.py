@@ -27,7 +27,7 @@ import os.path
 import dbus
 from gettext import gettext as _
 
-from .plugin import Plugin
+from plugin import Plugin
 
 from TurtleArt.util.menubuilder import make_menu_item, make_sub_menu
 from TurtleArt.util.configfile import ConfigFile
@@ -52,9 +52,9 @@ CONNECTION_INTERFACE_ACTIVITY_PROPERTIES = \
 class Collaboration_plugin(Plugin):
 
     __gsignals__ = {
-        'joined': (Gobject.SIGNAL_RUN_FIRST, Gobject.TYPE_NONE,
+        'joined': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE,
                    ()),
-        'shared': (Gobject.SIGNAL_RUN_FIRST, Gobject.TYPE_NONE,
+        'shared': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE,
                    ()), }
 
     def __init__(self, parent):

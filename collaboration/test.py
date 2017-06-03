@@ -5,7 +5,6 @@ import dbus
 import dbus.mainloop
 import dbus.mainloop.glib
 from .connectionmanager import get_connection_manager
-from gi.repository import Gobject
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 

@@ -77,7 +77,7 @@ def svg_str_to_pixbuf(svg_string):
 '''
 import cairo
 import gi
-gi.require_version("Gtk" , "3.0")
+gi.require_version("Gtk", "3.0")
 
 from gi.repository import Gtk
 from gi.repository import Gdk
@@ -226,7 +226,7 @@ class Sprite:
             surface = cairo.ImageSurface(
                 cairo.FORMAT_ARGB32, self.rect.width, self.rect.height)
             context = cairo.Context(surface)
-            Gdk.cairo_set_source_pixbuf(context,image, 0, 0)
+            Gdk.cairo_set_source_pixbuf(context, image, 0, 0)
             context.rectangle(0, 0, self.rect.width, self.rect.height)
             context.fill()
             self.cached_surfaces[i] = surface
@@ -405,8 +405,7 @@ class Sprite:
             w = pl.get_size()[0] / Pango.SCALE
             if w > my_width:
                 if self._rescale[i]:
-                    self._fd.set_size(
-                        int(self._scale[i] * Pango.SCALE * my_width / w))
+                    self._fd.set_size(int(self._scale[i] * Pango.SCALE * my_width / w))
                     pl.set_font_description(self._fd)
                     w = pl.get_size()[0] / Pango.SCALE
                 else:
@@ -435,8 +434,8 @@ class Sprite:
             cr.save()
             cr.translate(x, y)
             cr.set_source_rgb(self._color[0], self._color[1], self._color[2])
-            PangoCairo.update_layout(cr , pl)
-            PangoCairo.show_layout(cr , pl)
+            PangoCairo.update_layout(cr, pl)
+            PangoCairo.show_layout(cr, pl)
      
             cr.restore()
 
@@ -447,7 +446,7 @@ class Sprite:
             max = 0
             for i in range(len(self.labels)):
                 pl = PangoCairo.create_layout(cr)
-                pl.set_text(self.labels[i])
+                pl.set_text(self.labels[i], len(self.labels[i]))
                 self._fd.set_size(int(self._scale[i] * Pango.SCALE))
                 pl.set_font_description(self._fd)
                 w = pl.get_size()[0] / Pango.SCALE
