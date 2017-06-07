@@ -62,9 +62,9 @@ class Activity(GObject.GObject):
     """
     __gsignals__ = {
         'buddy-joined': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE,
-                         ([Gobject.TYPE_PYOBJECT])),
+                         ([GObject.TYPE_PYOBJECT])),
         'buddy-left': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE,
-                       ([Gobject.TYPE_PYOBJECT])),
+                       ([GObject.TYPE_PYOBJECT])),
         'new-channel': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE,
                         ([GObject.TYPE_PYOBJECT])),
         'joined': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE,

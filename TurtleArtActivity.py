@@ -87,7 +87,7 @@ class TurtleArtActivity(activity.Activity):
             super(TurtleArtActivity, self).__init__(handle)
         except dbus.exceptions.DBusException as e:
             _logger.error(str(e))
-
+        self._defer_palette_move = False
         self.handle = handle
         self.tw = None
         self.init_complete = False
@@ -141,7 +141,7 @@ class TurtleArtActivity(activity.Activity):
                 count += 1
             self.metadata['activity count'] = str(count)
 
-        self._defer_palette_move = False
+        
         # Now called from lazy_init
         # self.check_buttons_for_fit()
         

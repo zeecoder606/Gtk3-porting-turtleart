@@ -22,20 +22,21 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
-import logging
 import os
 
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gst', '1.0')
+
 from gi.repository import Gtk
-from gi.repository import Gdk
+from gi.repository import Gst
 from gi.repository import GObject
+GObject.threads_init()
+Gst.init(None)
 
-# gi.require_version('Gst', '1.0')
-# from gi.repository import Gst, GstVideo
+			
+from tautils import error_output, debug_output
 
-# GObject.threads_init()
-# Gst.init(None)
-
-# from gi.repository import GdkX11
 
 def play_audio_from_file(lc, file_path):
     """ Called from Show block of audio media """
@@ -130,14 +131,13 @@ class Gplay():
     def _player_eos_cb(self, widget):
         debug_output('end of stream', self.running_sugar)
         # Make sure player is stopped after EOS
-        # self.player.stop()
+        self.player.stop()
 
     def _player_error_cb(self, widget, message, detail):
-        # self.player.stop()
-        # self.player.set_uri(None)
-        # error_output('Error: %s - %s' % (message, detail),
-        #              self.running_sugar)
-        pass
+        self.player.stop()
+        self.player.set_uri(None)
+        error_output('Error: %s - %s' % (message, detail),
+                     self.running_sugar)
 
     def _player_stream_info_cb(self, widget, stream_info):
         if not len(stream_info) or self.got_stream_info:
@@ -158,44 +158,41 @@ class Gplay():
         if not file_path:
             return False
         self.playlist.append('file://' + os.path.abspath(file_path))
-        # if not self.player:
+        if not self.player:
             # Lazy init the player so that videowidget is realized
             # and has a valid widget allocation.
-        #     self.player = GstPlayer(self.videowidget, self.running_sugar)
-        #     self.player.connect('eos', self._player_eos_cb)
-        #     self.player.connect('error', self._player_error_cb)
-        #     self.player.connect('stream-info', self._player_stream_info_cb)
+            self.player = GstPlayer(self.videowidget, self.running_sugar)
+            self.player.connect('eos', self._player_eos_cb)
+            self.player.connect('error', self._player_error_cb)
+            self.player.connect('stream-info', self._player_stream_info_cb)
 
-        # try:
-        #     if not self.currentplaying:
-        #         debug_output('Playing: %s' % (self.playlist[0]),
-        #                      self.running_sugar)
-        #         self.player.set_uri(self.playlist[0])
-        #         self.currentplaying = 0
-        #         self.play_toggled()
-        # except Exception as e:
-        #     error_output('Error playing %s: %s' % (self.playlist[0], e),
-        #                  self.running_sugar)
+        try:
+            if not self.currentplaying:
+                debug_output('Playing: %s' % (self.playlist[0]),
+                             self.running_sugar)
+                self.player.set_uri(self.playlist[0])
+                self.currentplaying = 0
+                self.play_toggled()
+        except Exception as e:
+            error_output('Error playing %s: %s' % (self.playlist[0], e),
+                         self.running_sugar)
         return False
 
     def play_toggled(self):
-        # if self.player.is_playing():
-        #     self.player.pause()
-        # else:
-        #     if self.player.error:
-        #         pass
-        #     else:
-        #         self.player.play()
-        pass
+        if self.player.is_playing():
+            self.player.pause()
+        else:
+            if self.player.error:
+                pass
+            else:
+                self.player.play()
 
 
 class GstPlayer(GObject.GObject):
-
     __gsignals__ = {
         'error': (GObject.SIGNAL_RUN_FIRST, None, [str, str]),
         'eos': (GObject.SIGNAL_RUN_FIRST, None, []),
-        'stream-info': (GObject.SIGNAL_RUN_FIRST, None, [object])
-    }
+        'stream-info': (GObject.SIGNAL_RUN_FIRST, None, [object])}
 
     def __init__(self, videowidget, running_sugar):
         GObject.GObject.__init__(self)
@@ -203,35 +200,33 @@ class GstPlayer(GObject.GObject):
         self.running_sugar = running_sugar
         self.playing = False
         self.error = False
-        self.player = None
 
-        # self.player = gst.element_factory_make('playbin2', 'player')
+        self.player = Gst.ElementFactory.make('playbin', 'player')
 
         videowidget.realize()
         self.videowidget = videowidget
-        self.videowidget_xid = videowidget.window.xid
+        self.videowidget_xid = videowidget.get_proprerty('window').get_xid()
         self._init_video_sink()
 
-        # bus = self.player.get_bus()
-        # bus.enable_sync_message_emission()
-        # bus.add_signal_watch()
-        # bus.connect('sync-message::element', self.on_sync_message)
-        # bus.connect('message', self.on_message)
+        bus = self.player.get_bus()
+        bus.enable_sync_message_emission()
+        bus.add_signal_watch()
+        bus.connect('sync-message::element', self.on_sync_message)
+        bus.connect('message', self.on_message)
 
     def set_uri(self, uri):
-        # self.player.set_property('uri', uri)
-        pass
+        self.player.set_property('uri', uri)
 
     def on_sync_message(self, bus, message):
-        if message.structure is None:
+        if message.get_structure() is None:
             return
-        if message.structure.get_name() == 'prepare-xwindow-id':
+        if message.get_structure().get_name() == 'prepare-window-handle':
             self.videowidget.set_sink(message.src, self.videowidget_xid)
             message.src.set_property('force-aspect-ratio', True)
 
     def on_message(self, bus, message):
         t = message.type
-        if t == gst.MESSAGE_ERROR:
+        if t == Gst.MessageType.ERROR:
             err, debug = message.parse_error()
             error_output('Error: %s - %s' % (err, debug),
                          self.running_sugar)
@@ -239,26 +234,26 @@ class GstPlayer(GObject.GObject):
             self.emit('eos')
             self.playing = False
             self.emit('error', str(err), str(debug))
-        elif t == gst.MESSAGE_EOS:
+        elif t == Gst.MessageType.EOS:
             self.emit('eos')
             self.playing = False
-        elif t == gst.MESSAGE_STATE_CHANGED:
+        elif t == Gst.MessageType.STATE_CHANGED:
             old, new, pen = message.parse_state_changed()
-            # if old == gst.STATE_READY and new == gst.STATE_PAUSED and \
-            #     hasattr(self.player.props, 'stream_info_value_array'):
-            #     self.emit('stream-info',
-            #               self.player.props.stream_info_value_array)
+            if old == Gst.State.READY and new == Gst.State.PAUSED and \
+               hasattr(self.player.props, 'stream_info_value_array'):
+                self.emit('stream-info',
+                          self.player.props.stream_info_value_array)
 
     def _init_video_sink(self):
-        self.bin = gst.Bin()
-        videoscale = gst.element_factory_make('videoscale')
+        self.bin = Gst.Bin.new()
+        videoscale = Gst.ElementFactory.make('videoscale', None)
         self.bin.add(videoscale)
-        pad = videoscale.get_pad('sink')
-        ghostpad = gst.GhostPad('sink', pad)
+        pad = videoscale.get_static_pad('sink')
+        ghostpad = Gst.GhostPad.new('sink', pad)
         self.bin.add_pad(ghostpad)
         videoscale.set_property('method', 0)
 
-        caps_string = 'video/x-raw-yuv, '
+        caps_string = 'video/x-raw, '
         r = self.videowidget.get_allocation()
         if r.width > 500 and r.height > 500:
             # Sigh... xvimagesink on the XOs will scale the video to fit
@@ -269,37 +264,40 @@ class GstPlayer(GObject.GObject):
             caps_string += 'width=%d, height=%d' % (w, h)
         else:
             caps_string += 'width=480, height=360'
-        caps = gst.Caps(caps_string)
-        self.filter = gst.element_factory_make('capsfilter', 'filter')
+        caps = Gst.Caps.from_string(caps_string)
+        self.filter = Gst.ElementFactory.make('capsfilter', 'filter')
         self.bin.add(self.filter)
         self.filter.set_property('caps', caps)
 
-        conv = gst.element_factory_make('ffmpegcolorspace', 'conv')
+        conv = Gst.ElementFactory.make('videoconvert', 'conv')
         self.bin.add(conv)
-        videosink = gst.element_factory_make('autovideosink')
+        videosink = Gst.ElementFactory.make('autovideosink')
         self.bin.add(videosink)
-        gst.element_link_many(videoscale, self.filter, conv, videosink)
-        # self.player.set_property('video-sink', self.bin)
+       
+        videoscale.link(self.filter)
+        self.filter.link(conv)
+        conv.link(videosink)
+
+        self.player.set_property('video-sink', self.bin)
 
     def pause(self):
-        # self.player.set_state(gst.STATE_PAUSED)
+        self.player.set_state(Gst.State.PAUSED)
         self.playing = False
         # debug_output('pausing player', self.running_sugar)
 
     def play(self):
-        # self.player.set_state(gst.STATE_PLAYING)
+        self.player.set_state(Gst.State.PLAYING)
         self.playing = True
         self.error = False
         # debug_output('playing player', self.running_sugar)
 
     def stop(self):
-        # self.player.set_state(gst.STATE_NULL)
+        self.player.set_state(Gst.State.NULL)
         self.playing = False
         # debug_output('stopped player', self.running_sugar)
 
     def get_state(self, timeout=1):
-        # return self.player.get_state(timeout=timeout)
-        return None
+        return self.player.get_state(timeout=timeout)
 
     def is_playing(self):
         return self.playing
@@ -309,22 +307,18 @@ class VideoWidget(Gtk.DrawingArea):
 
     def __init__(self):
         Gtk.DrawingArea.__init__(self)
-
         self.set_events(Gdk.EventMask.EXPOSURE_MASK)
         self.imagesink = None
         self.set_double_buffered(True)
         self.set_app_paintable(True)
 
     def do_expose_event(self, event):
-        # if self.imagesink:
-        #     self.imagesink.expose()
-        #     return False
-        # else:
-        #     return True
-        pass
+        if self.imagesink:
+            self.imagesink.expose()
+            return False
+        else:
+            return True
 
     def set_sink(self, sink, xid):
-        # self.imagesink = sink
-        # self.imagesink.set_xwindow_id(xid)
-        pass
-
+        self.imagesink = sink
+        self.imagesink.set_window_handle(xid)

@@ -20,7 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-
+import gi
+gi.require_version('GConf', '2.0')
 import tempfile
 import dbus
 import cairo
