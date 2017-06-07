@@ -38,7 +38,6 @@ from gi.repository import GdkPixbuf
 from gi.repository import Pango
 from gi.repository import PangoCairo
 
-from sugar3.activity import activity
 _GST_AVAILABLE = False
 
 

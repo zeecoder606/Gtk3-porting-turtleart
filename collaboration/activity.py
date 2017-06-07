@@ -28,12 +28,18 @@ import dbus
 from dbus import PROPERTIES_IFACE
 from gi.repository import GObject
 from telepathy.client import Channel
-from telepathy.interfaces import (CHANNEL,
+try:
+    from telepathy.interfaces import (CHANNEL,
                                   CHANNEL_INTERFACE_GROUP,
                                   CHANNEL_TYPE_TUBES,
                                   CHANNEL_TYPE_TEXT,
                                   CONNECTION,
                                   PROPERTIES_INTERFACE)
+    HAS_TELEPATHY = True
+except:
+    pass
+    HAS_TELEPATHY = False
+     
 from telepathy.constants import (CHANNEL_GROUP_FLAG_CHANNEL_SPECIFIC_HANDLES,
                                  HANDLE_TYPE_ROOM,
                                  HANDLE_TYPE_CONTACT,

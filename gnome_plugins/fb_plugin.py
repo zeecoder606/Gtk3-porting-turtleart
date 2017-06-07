@@ -35,8 +35,13 @@ import pycurl
 import urlparse
 
 from gi.repository import Gtk
-from gi.repository import WebKit
 
+try:
+    from gi.repository import WebKit
+    HAS_WEBKIT = True
+except:
+    pass
+    HAS_WEBKIT = False
 from plugin import Plugin
 from TurtleArt.util.menubuilder import make_menu_item, make_sub_menu, MENUBAR
 from gettext import gettext as _

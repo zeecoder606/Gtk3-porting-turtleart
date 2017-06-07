@@ -34,13 +34,20 @@ from TurtleArt.tautils import data_to_string, data_from_string, get_path, \
                               base64_to_image, debug_output, error_output
 from TurtleArt.taconstants import DEFAULT_TURTLE_COLORS
 
-from sugar3 import profile
-from sugar3.presence import presenceservice
+try:
+    from sugar3 import profile
+    from sugar3.presence import presenceservice
+    has_profile = True
+except:
+    from collaboration import presenceservice 
+    has_profile = False
 
 try:
-    from sugar3.presence.wrapper import CollabWrapper
-except ImportError:
-    from textchannelwrapper import CollabWrapper
+     from sugar3.presence.wrapper import CollabWrapper
+     HAS_COLLAB = True
+except:
+     from textchannelwrapper import CollabWrapper
+     HAS_COLLAB = False
 
 
 SERVICE = 'org.laptop.TurtleArtActivity'
@@ -60,16 +67,17 @@ class Collaboration():
 
     def setup(self):
         # TODO: hand off role of master if sharer leaves
-        self.pservice = presenceservice.get_instance()
-        self.initiating = None  # sharing (True) or joining (False)
+        if has_profile:
+          self.pservice = presenceservice.get_instance()
+          self.initiating = None  # sharing (True) or joining (False)
 
-        # Add my buddy object to the list
-        owner = self.pservice.get_owner()
-        self.owner = owner
-        self._tw.buddies.append(self.owner)
-        self._share = ''
-        self._activity.connect('shared', self._shared_cb)
-        self._activity.connect('joined', self._joined_cb)
+          # Add my buddy object to the list
+          owner = self.pservice.get_owner()
+          self.owner = owner
+          self._tw.buddies.append(self.owner)
+          self._share = ''
+          self._activity.connect('shared', self._shared_cb)
+          self._activity.connect('joined', self._joined_cb)
 
     def _setup_dispatch_table(self):
         self._processing_methods = {
@@ -173,10 +181,10 @@ class Collaboration():
             if state == telepathy.TUBE_STATE_LOCAL_PENDING:
                 self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES]\
                     .AcceptDBusTube(id)
-
-            self.collab = CollabWrapper(self)
-            self.collab.message.connect(self.event_received_cb)
-            self.collab.setup()
+            if HAS_COLLAB: 
+                self.collab = CollabWrapper(self)
+                self.collab.message.connect(self.event_received_cb)
+                self.collab.setup()
 
             # Now that we have the tube, we can ask for the turtle dictionary.
             if self.waiting_for_turtles:  # A joiner must wait for turtles.
