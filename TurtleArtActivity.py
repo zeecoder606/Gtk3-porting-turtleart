@@ -26,7 +26,10 @@
 import cairo
 import dbus
 import gi
-gi.require_version("Gtk", "3.0")
+gi.require_version('Gtk', '3.0')
+gi.require_version('GConf', '2.0')
+gi.require_version('SugarExt', '1.0')
+gi.require_version('PangoCairo', '1.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
@@ -244,7 +247,7 @@ class TurtleArtActivity(activity.Activity):
 
     def do_save_as_python_cb(self, widget):
         ''' Callback for saving the project as Python code. '''
-        self.save_as_python.set_icon('python-saveon')
+        self.save_as_python.set_icon_name('python-saveon')
         if hasattr(self, 'get_window'):
             if hasattr(self.get_window(), 'get_cursor'):
                 self._old_cursor = self.get_window().get_cursor()
