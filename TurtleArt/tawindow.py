@@ -4532,7 +4532,7 @@ class TurtleArtWindow():
                      self.activity.sw.get_vadjustment().get_value()))
             elif self.interactive_mode:
                 self.status_spr.move(
-                    (0, self.activity.win.get_window().get_size()[1] - 80))
+                    (0, self.activity.win.get_window().get_height() - 80))
 
     def calc_position(self, template):
         ''' Relative placement of portfolio objects (deprecated) '''
