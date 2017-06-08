@@ -38,6 +38,7 @@ from gi.repository import GdkPixbuf
 from gi.repository import Pango
 from gi.repository import PangoCairo
 
+from sugar3.activity import activity
 _GST_AVAILABLE = False
 
 
@@ -3716,7 +3717,7 @@ class TurtleArtWindow():
         ''' Make sure a 'number' block contains a number. '''
         if hasattr(self, '_text_entry'):
             bounds = self._text_buffer.get_bounds()
-            text = self._text_buffer.get_text(bounds[0], bounds[1])
+            text = self._text_buffer.get_text(bounds[0], bounds[1], True)
             self._hide_text_entry()
         else:
             text = self.selected_blk.spr.labels[0]
@@ -3775,7 +3776,7 @@ class TurtleArtWindow():
     def _test_string(self):
         if hasattr(self, '_text_entry'):
             bounds = self._text_buffer.get_bounds()
-            text = self._text_buffer.get_text(bounds[0], bounds[1])
+            text = self._text_buffer.get_text(bounds[0], bounds[1], True)
             self._hide_text_entry()
         else:
             text = self.selected_blk.spr.labels[0]
