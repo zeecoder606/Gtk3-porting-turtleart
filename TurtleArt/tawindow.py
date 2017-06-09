@@ -460,7 +460,7 @@ class TurtleArtWindow():
             % (plugin_dir, plugin_dir, plugin_class, plugin_class)
         plugins = {}
         # NOTE: When debugging plugins, it may be useful to not trap errors
-        try:
+        if True:
             exec f in globals(), plugins
             self.turtleart_plugins[plugin_dir] = plugins.values()[0](self)
             debug_output('Successfully importing %s' % (plugin_class),
@@ -469,7 +469,7 @@ class TurtleArtWindow():
             self._add_plugin_icon_dir(os.path.join(plugin_path, plugin_dir))
             # Add the plugin to the list of global objects
             global_objects[plugin_class] = self.turtleart_plugins[plugin_dir]
-        except Exception as e:
+        else :
             debug_output('Failed to load %s: %s' % (plugin_class, str(e)),
                          self.running_sugar)
 
