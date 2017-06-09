@@ -21,11 +21,12 @@
 #THE SOFTWARE.
 
 import gi
-gi.require_version("Gst", "1.0")
-import Gst, time
-Gst.init()
-import GObject
-
+gi.require_version('Gst', '1.0')
+from gi.repository import Gst 
+import time
+from gi.repository import GObject
+GObject.threads_init()
+Gst.init(None)
 from TurtleArt.tautils import debug_output
 
 
@@ -35,7 +36,7 @@ class Camera():
 
     def __init__(self, device='/dev/video0'):
         ''' Prepare camera pipeline to pixbuf and signal watch '''
-        self.pipe = Gst.Pipeline()
+        self.pipe = Gst.Pipeline('pipeline')
         v4l2src = Gst.ElementFactory.make('v4l2src', None)
         v4l2src.props.device = device
         self.pipe.add(v4l2src)
@@ -57,7 +58,7 @@ class Camera():
         ''' We get a message if a pixbuf is available '''
         if message.get_structure() is not None:
             if message.get_structure().get_name() == 'pixbuf':
-                self.pixbuf = message.structure['pixbuf']
+                self.pixbuf = message.get_structure()['pixbuf']
                 self.image_ready = True
 
     def start_camera_input(self):
