@@ -23,10 +23,10 @@
 import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst 
-import time
-from gi.repository import GObject
-GObject.threads_init()
 Gst.init(None)
+import time
+#from gi.repository import GObject
+#GObject.threads_init()
 from TurtleArt.tautils import debug_output
 
 
@@ -36,16 +36,16 @@ class Camera():
 
     def __init__(self, device='/dev/video0'):
         ''' Prepare camera pipeline to pixbuf and signal watch '''
-        self.pipe = Gst.Pipeline('pipeline')
+        self.pipe = Gst.Pipeline()
         v4l2src = Gst.ElementFactory.make('v4l2src', None)
         v4l2src.props.device = device
         self.pipe.add(v4l2src)
         videoconvert = Gst.ElementFactory.make('videoconvert', None)
         self.pipe.add(videoconvert)
-        gdkpixbufsink = Gst.ElementFactory.make('gdkpixbufsink', None)
-        self.pipe.add(gdkpixbufsink)
+        self.gdkpixbufsink = Gst.ElementFactory.make('gdkpixbufsink', None)
+        self.pipe.add(self.gdkpixbufsink)
         v4l2src.link(videoconvert)
-        videoconvert.link(gdkpixbufsink)
+        videoconvert.link(self.gdkpixbufsink)
         if self.pipe is not None:
             self.bus = self.pipe.get_bus()
             self.bus.add_signal_watch()
@@ -58,7 +58,7 @@ class Camera():
         ''' We get a message if a pixbuf is available '''
         if message.get_structure() is not None:
             if message.get_structure().get_name() == 'pixbuf':
-                self.pixbuf = message.get_structure()['pixbuf']
+                self.pixbuf = self.gdkpixbufsink.get_property("last-pixbuf")
                 self.image_ready = True
 
     def start_camera_input(self):
@@ -67,7 +67,7 @@ class Camera():
         self.image_ready = False
         self.pipe.set_state(Gst.State.PLAYING)
         while not self.image_ready:
-            self.bus.poll(Gst.MessageType.ANY, -1)
+            self.bus.poll(Gst.MessageType.ANY, 1)
 
     def stop_camera_input(self):
         ''' Stop grabbing '''
