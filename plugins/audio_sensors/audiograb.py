@@ -73,8 +73,8 @@ class AudioGrab():
         else:
             self.channels = None
         if self.channels is None:
-            debug_output('Guessing there are 2 channels',
-                         self.parent.running_sugar)
+            #debug_output('Guessing there are 2 channels',
+            #             self.parent.running_sugar)
             self.channels = 2
 
         self.we_are_logging = False
@@ -112,7 +112,7 @@ class AudioGrab():
         self.pads = []
         self.queue = []
         self.fakesink = []
-        self.pipeline = Gst.Pipeline('pipeline')
+        self.pipeline = Gst.Pipeline.new('pipeline')
         self.alsasrc = Gst.ElementFactory.make('alsasrc', 'alsa-source')
         self.pipeline.add(self.alsasrc)
         self.caps1 = Gst.ElementFactory.make('capsfilter', 'caps1')
@@ -504,7 +504,9 @@ def check_output(command, warning):
     ''' Workaround for old systems without subprocess.check_output'''
     if hasattr(subprocess, 'check_output'):
         try:
+        	debug_output(command, self.parent.running_sugar)
             output = subprocess.check_output(command)
+            
         except subprocess.CalledProcessError:
             log.warning(warning)
             return None
