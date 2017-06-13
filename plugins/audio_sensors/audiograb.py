@@ -485,7 +485,7 @@ class AudioGrab():
 
         self.save_state()
 
-    def on_activity_quit(self):
+    def _on_activity_quit(self):
         '''When Activity quits'''
         self.set_mic_boost(QUIT_MIC_BOOST)
         self.set_dc_mode(QUIT_DC_MODE_ENABLE)
@@ -495,7 +495,7 @@ class AudioGrab():
        
 
     def on_activity_quit(self):
-        AudioGrab.on_activity_quit(self)
+        AudioGrab._on_activity_quit(self)
         output = check_output(
             ['amixer', 'set', 'Analog Mic Boost', "62%"],
             'restore Analog Mic Boost')
