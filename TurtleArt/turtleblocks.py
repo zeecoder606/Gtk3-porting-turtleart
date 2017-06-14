@@ -1053,7 +1053,7 @@ Would you like to save before quitting?'))
         self._sample_window.hide()
 
         self.win.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.WATCH))
-        Gobject.idle_add(self._sample_loader)
+        GObject.idle_add(self._sample_loader)
 
     def _sample_loader(self):
         # Convert from thumbnail path to sample path
