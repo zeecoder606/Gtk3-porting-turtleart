@@ -504,9 +504,8 @@ def check_output(command, warning):
     ''' Workaround for old systems without subprocess.check_output'''
     if hasattr(subprocess, 'check_output'):
         try:
-        	debug_output(command, self.parent.running_sugar)
+            #debug_output(command, self.parent.running_sugar)
             output = subprocess.check_output(command)
-            
         except subprocess.CalledProcessError:
             log.warning(warning)
             return None
